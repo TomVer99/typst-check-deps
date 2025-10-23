@@ -118,40 +118,34 @@ async function extractSubImportsFromFileContents(
   tomlDirPath: string
 ): Promise<string[]> {
   const filePaths: string[] = []
-  const fileDir = path.dirname(filePath) + '/'
+  const fileDir = path.dirname(filePath)
   const lines: string[] = contents.split(/\r?\n/)
 
+  const resolveImport = (match: string): string => {
+    if (match.startsWith('/')) {
+      // Relative to the TOML directory (strip leading '/')
+      return path.normalize(path.join(tomlDirPath, match.substring(1)))
+    }
+    if (match.startsWith('./')) {
+      // Relative to the current file directory
+      return path.normalize(path.join(fileDir, match.replace('./', '')))
+    }
+    // Assume relative to current file directory
+    return path.normalize(path.join(fileDir, match))
+  }
+
+  const re = /import\s+"([^"]+)"/gm
   for (const line of lines) {
-    if (
-      line.includes('import') && // It has to contain an import
-      !line.includes('"@preview') && // It cannot be an Universe import
-      !line.trim().startsWith('//') // It may not be a comment
-    ) {
-      const re = /import\s+"([^"]+)"/gm
-      const reMatches: string[] = [...line.matchAll(re)].map((m) =>
-        String(m[1]).trim()
-      )
-      for (const match of reMatches) {
-        if (match.startsWith('/')) {
-          // Relative import to toml file
-          const newPath = (tomlDirPath + match.substring(1)).replace('/', '\\')
-          if (!filePaths.includes(newPath)) {
-            filePaths.push(newPath)
-          }
-        } else if (match.startsWith('./')) {
-          // Relative import to current file
-          const newPath = (fileDir + match.replace('./', '')).replace('/', '\\')
-          if (!filePaths.includes(newPath)) {
-            filePaths.push(newPath)
-          }
-        } else {
-          // Assume its a relative import to current file
-          const newPath = (fileDir + match).replace('/', '\\')
-          if (!filePaths.includes(newPath)) {
-            filePaths.push(newPath)
-          }
-        }
-      }
+    if (!line.includes('import')) continue
+    if (line.includes('"@preview')) continue
+    if (line.trim().startsWith('//')) continue
+
+    const reMatches: string[] = [...line.matchAll(re)].map((m) =>
+      String(m[1]).trim()
+    )
+    for (const match of reMatches) {
+      const newPath = resolveImport(match)
+      if (!filePaths.includes(newPath)) filePaths.push(newPath)
     }
   }
 
@@ -201,8 +195,7 @@ async function detectProjectType(): Promise<RepoType> {
     core.debug('no .typ files found in root dir')
   } catch (err) {
     core.debug(
-      'error reading workspace directory: ' +
-      (err instanceof Error ? err.message : String(err))
+      `error reading workspace directory: ${err instanceof Error ? err.message : String(err)}`
     )
   }
 
