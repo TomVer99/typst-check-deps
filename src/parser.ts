@@ -174,7 +174,7 @@ async function parseTOMLForLibFilePath(tomlFilePath: string): Promise<string> {
     }
   }
 
-  return workspace + packageToml
+  return workspace + '/' + packageToml
 }
 
 async function detectProjectType(): Promise<RepoType> {
