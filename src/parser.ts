@@ -23,7 +23,7 @@ export async function retrievePackageDependencies(): Promise<PackageInfo[]> {
 
   if (projectType == RepoType.PACKAGE) {
     const libMainFilePath = await parseTOMLForLibFilePath(
-      workspace + 'typst.toml'
+      workspace + '/typst.toml'
     )
     pkgs = await recursivelyParseFilesForUniverseImports(
       libMainFilePath,
@@ -178,7 +178,7 @@ async function parseTOMLForLibFilePath(tomlFilePath: string): Promise<string> {
 }
 
 async function detectProjectType(): Promise<RepoType> {
-  const tomlPath = path.join(workspace, 'typst.toml')
+  const tomlPath = path.join(workspace, '/typst.toml')
   try {
     await fsp.access(tomlPath, fs.constants.R_OK)
     core.debug('typst.toml found and readable, interpreting project as PACKAGE')
@@ -202,7 +202,7 @@ async function detectProjectType(): Promise<RepoType> {
   } catch (err) {
     core.debug(
       'error reading workspace directory: ' +
-        (err instanceof Error ? err.message : String(err))
+      (err instanceof Error ? err.message : String(err))
     )
   }
 
