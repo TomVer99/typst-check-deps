@@ -1,17 +1,17 @@
 {
   "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "description": "Check Typst dependencies against available versions on Typst Universe",
+  "version": "0.1.0",
+  "author": "TomVer99",
   "type": "module",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/TomVer99/typst-check-deps",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/TomVer99/typst-check-deps.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/TomVer99/typst-check-deps/issues"
   },
   "keywords": [
     "actions"
@@ -37,19 +37,23 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^1.11.1",
+    "cheerio": "^1.1.2",
+    "smol-toml": "^1.4.2"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
     "@github/local-action": "^6.0.0",
     "@jest/globals": "^30.2.0",
     "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.6.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.32.1",
+    "cross-env": "^7.0.3",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -63,7 +67,6 @@
     "rollup": "^4.52.4",
     "ts-jest": "^29.4.4",
     "ts-jest-resolver": "^2.0.1",
-    "cross-env": "^7.0.3",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {

@@ -1,5 +1,9 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import fs from 'node:fs'
+import { generateMarkdownTable } from './reporting.js'
+import { retrievePackageDependencies } from './parser.js'
+import { getVersionInfo } from './server.js'
+import { dedupeExact } from './common.js'
 
 /**
  * The main function for the action.
@@ -8,18 +12,44 @@ import { wait } from './wait.js'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const failOnNewerVersion: boolean = core.getBooleanInput(
+      'fail-on-newer-version'
+    )
+    // Get all dependencies
+    const pkgs = await retrievePackageDependencies()
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const pkgs_deduped = dedupeExact(pkgs)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    // Get latest versions for each package
+    for (const pkg of pkgs_deduped) {
+      ;[, pkg.allVersions] = await getVersionInfo(pkg.name)
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    // Generate result table
+    const outputTable = generateMarkdownTable(pkgs_deduped)
+    core.setOutput('table', outputTable)
+
+    // If the runner provides a GITHUB_STEP_SUMMARY path, append the table
+    const summaryPath = process.env.GITHUB_STEP_SUMMARY
+    if (summaryPath) {
+      fs.appendFileSync(summaryPath, `\n${outputTable}\n`)
+    }
+
+    for (const pkg of pkgs_deduped) {
+      if (
+        pkg.allVersions.indexOf(pkg.detectedVersion) > 0 &&
+        failOnNewerVersion
+      ) {
+        core.setFailed(
+          'Newer versions present of ' +
+            pkg.name +
+            '. In file: ' +
+            (Array.isArray(pkg.detectedInFile)
+              ? pkg.detectedInFile.join(', ')
+              : String(pkg.detectedInFile))
+        )
+      }
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)

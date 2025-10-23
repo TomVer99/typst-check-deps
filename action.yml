@@ -1,23 +1,25 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Typst Dependency Checker
+description: Checks if any imported packages have newer versions available
+author: TomVer99
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: package
+  color: green
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
-    required: true
-    default: '1000'
+  fail-on-newer-version:
+    description: Fail if a newer version is detected
+    required: false
+    default: false
 
 # Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  table:
+    description:
+      A markdown table showing all dependencies found, what version is detected,
+      what version is found on Typst Universe and if it's a newer version.
 
 runs:
   using: node24
