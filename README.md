@@ -21,7 +21,8 @@ Usage
 Add the action to your workflow. Example (use the release tag or repository
 path):
 
-DISCLAIMER: This action only works with a Typst TOML file in the root directory of your repository.
+DISCLAIMER: This action only works with a Typst TOML file in the root directory
+of your repository.
 
 ```yaml
 name: Check Typst deps
