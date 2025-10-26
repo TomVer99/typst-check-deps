@@ -1,28 +1,60 @@
 # Typst Dependency Checker Action
 
+<!-- Project Status & Quality -->
+![Maintenance](https://img.shields.io/badge/Maintained-Yes-green)
+![GitHub release (with filter)](https://img.shields.io/github/v/release/TomVer99/typst-check-deps)
+![GitHub License](https://img.shields.io/github/license/TomVer99/typst-check-deps)
+
+<!-- CI Badges -->
 [![GitHub Super-Linter](https://github.com/TomVer99/typst-check-deps/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/TomVer99/typst-check-deps/actions/workflows/ci.yml/badge.svg)
 [![Check dist/](https://github.com/TomVer99/typst-check-deps/actions/workflows/check-dist.yml/badge.svg)](https://github.com/TomVer99/typst-check-deps/actions/workflows/check-dist.yml)
 [![CodeQL](https://github.com/TomVer99/typst-check-deps/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/TomVer99/typst-check-deps/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
+<!-- Community & Activity -->
+![GitHub Repo stars](https://img.shields.io/github/stars/TomVer99/typst-check-deps)
+![Issues](https://img.shields.io/github/issues-raw/TomVer99/typst-check-deps?label=Issues)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/TomVer99/typst-check-deps/latest)
+
 This GitHub Action checks for outdated dependencies in your
 [Typst](https://typst.app/) project.
 
-Features
+## Features
 
 - Scans imported packages in Typst files and reports if newer versions are
   available on Typst Universe
+- Adds a comment to pull requests with a summary table of dependencies
 
-- Returns a markdown table as an output for use in PR comments or workflow steps
+### Disclaimers :warning:
 
-Usage
+Currently, this action only works with a Typst TOML file located in the root
+directory of your repository.
+It will NOT work in _any_ other case.
 
-Add the action to your workflow. Example (use the release tag or repository
-path):
+Also, due to the fact that Typst Universe does not have an official API, the action
+relies on web scraping to get the latest version information.
+It is therefore not recommended for use in production environments.
 
-DISCLAIMER: This action only works with a Typst TOML file in the root directory
-of your repository.
+## Planned Features
+
+### v1.0.0
+
+- Update comment on PR to avoid multiple comments
+- Use GitHub as source of truth for latest versions instead of Typst Universe
+- Improve comment formatting
+- Increase test coverage to 80%+
+
+### v1.0.0+
+
+- Support for other project types
+  - Allow user to specify path(s) to project file(s)
+  - Automatically detect of no TOML is found in root, and scan for project files
+
+## Usage
+
+Add the following to your GitHub Actions workflow file (e.g.
+`.github/workflows/deps-check.yml`):
 
 ```yaml
 name: Check Typst deps
@@ -33,6 +65,8 @@ on:
 
 jobs:
   check-deps:
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,32 +88,5 @@ jobs:
 Inputs
 
 - `fail-on-newer-version` (optional, boolean) — If `true`, the action fails the
-  job when a newer version is detected. Default: `false`.
-
-Outputs
-
-- `table` — A markdown table listing found dependencies, detected version and
-  the latest version on Typst Universe.
-
-Examples
-
-- To fail CI when a newer version is available:
-
-```yaml
-with:
-  fail-on-newer-version: true
-```
-
-Troubleshooting
-
-- If the action cannot find Typst files, make sure your repository contains
-  `.typ` files and that the workflow checks out the repository (see the
-  `actions/checkout` step above).
-- If you modify the TypeScript source, ensure the compiled `dist/` is present in
-  the release/tag or that your workflow builds the action before using it.
-
-Changelog
-
-See `CHANGELOG.md` for detailed release notes. Initial public release notes:
-
-- 0.1.0 - Initial public release: Typst dependency scanning and reporting
+  job when a newer version is detected. Default: `false`. (can be used to fail CI
+  when outdated dependencies are found)
