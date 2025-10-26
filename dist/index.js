@@ -28426,7 +28426,7 @@ async function retrievePackageDependencies() {
     const projectType = await detectProjectType();
     let pkgs = [];
     if (projectType == RepoType.PACKAGE) {
-        const libMainFilePath = await parseTOMLForLibFilePath(workspace + 'typst.toml');
+        const libMainFilePath = await parseTOMLForLibFilePath(workspace + '/typst.toml');
         pkgs = await recursivelyParseFilesForUniverseImports(libMainFilePath, [], workspace);
     }
     return pkgs;
@@ -28482,38 +28482,33 @@ async function extractPackageImportFromFileContents(fileContents, filePath) {
 }
 async function extractSubImportsFromFileContents(contents, filePath, tomlDirPath) {
     const filePaths = [];
-    const fileDir = path.dirname(filePath) + '/';
+    const fileDir = path.dirname(filePath);
     const lines = contents.split(/\r?\n/);
+    const resolveImport = (match) => {
+        if (match.startsWith('/')) {
+            // Relative to the TOML directory (strip leading '/')
+            return path.normalize(path.join(tomlDirPath, match.substring(1)));
+        }
+        if (match.startsWith('./')) {
+            // Relative to the current file directory
+            return path.normalize(path.join(fileDir, match.replace('./', '')));
+        }
+        // Assume relative to current file directory
+        return path.normalize(path.join(fileDir, match));
+    };
+    const re = /import\s+"([^"]+)"/gm;
     for (const line of lines) {
-        if (line.includes('import') && // It has to contain an import
-            !line.includes('"@preview') && // It cannot be an Universe import
-            !line.trim().startsWith('//') // It may not be a comment
-        ) {
-            const re = /import\s+"([^"]+)"/gm;
-            const reMatches = [...line.matchAll(re)].map((m) => String(m[1]).trim());
-            for (const match of reMatches) {
-                if (match.startsWith('/')) {
-                    // Relative import to toml file
-                    const newPath = (tomlDirPath + match.substring(1)).replace('/', '\\');
-                    if (!filePaths.includes(newPath)) {
-                        filePaths.push(newPath);
-                    }
-                }
-                else if (match.startsWith('./')) {
-                    // Relative import to current file
-                    const newPath = (fileDir + match.replace('./', '')).replace('/', '\\');
-                    if (!filePaths.includes(newPath)) {
-                        filePaths.push(newPath);
-                    }
-                }
-                else {
-                    // Assume its a relative import to current file
-                    const newPath = (fileDir + match).replace('/', '\\');
-                    if (!filePaths.includes(newPath)) {
-                        filePaths.push(newPath);
-                    }
-                }
-            }
+        if (!line.includes('import'))
+            continue;
+        if (line.includes('"@preview'))
+            continue;
+        if (line.trim().startsWith('//'))
+            continue;
+        const reMatches = [...line.matchAll(re)].map((m) => String(m[1]).trim());
+        for (const match of reMatches) {
+            const newPath = resolveImport(match);
+            if (!filePaths.includes(newPath))
+                filePaths.push(newPath);
         }
     }
     return filePaths;
@@ -28531,10 +28526,10 @@ async function parseTOMLForLibFilePath(tomlFilePath) {
             }
         }
     }
-    return workspace + packageToml;
+    return workspace + '/' + packageToml;
 }
 async function detectProjectType() {
-    const tomlPath = path.join(workspace, 'typst.toml');
+    const tomlPath = path.join(workspace, '/typst.toml');
     try {
         await fsp.access(tomlPath, fs.constants.R_OK);
         coreExports.debug('typst.toml found and readable, interpreting project as PACKAGE');
@@ -28553,8 +28548,7 @@ async function detectProjectType() {
         coreExports.debug('no .typ files found in root dir');
     }
     catch (err) {
-        coreExports.debug('error reading workspace directory: ' +
-            (err instanceof Error ? err.message : String(err)));
+        coreExports.debug(`error reading workspace directory: ${err instanceof Error ? err.message : String(err)}`);
     }
     return RepoType.UNDEFINED;
 }
