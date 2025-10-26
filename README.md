@@ -38,12 +38,12 @@ It is therefore not recommended for use in production environments.
 
 ## Planned Features
 
-### v1.0.0
+### v1.0.0 [[Milestone](https://github.com/TomVer99/typst-check-deps/milestone/1)]
 
-- Update comment on PR to avoid multiple comments
-- Use GitHub as source of truth for latest versions instead of Typst Universe
-- Improve comment formatting
-- Increase test coverage to 80%+
+- Update comment on PR to avoid multiple comments [#6](https://github.com/TomVer99/typst-check-deps/issues/6)
+- Use GitHub as source of truth for latest versions instead of Typst Universe [#7](https://github.com/TomVer99/typst-check-deps/issues/7)
+- Improve comment formatting [#8](https://github.com/TomVer99/typst-check-deps/issues/8)
+- Increase test coverage to 80%+ [#9](https://github.com/TomVer99/typst-check-deps/issues/9)
 
 ### v1.0.0+
 
