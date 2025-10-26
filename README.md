@@ -34,10 +34,12 @@ or buy me a coffee to support its development!\
 
 ### Disclaimers :warning:
 
+:mag:\
 Currently, this action only works with a Typst TOML file located in the root
 directory of your repository.
 It will NOT work in _any_ other case.
 
+:mag:\
 Also, due to the fact that Typst Universe does not have an official API, the action
 relies on web scraping to get the latest version information.
 It is therefore not recommended for use in production environments.
