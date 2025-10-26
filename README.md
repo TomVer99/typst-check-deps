@@ -20,6 +20,12 @@
 This GitHub Action checks for outdated dependencies in your
 [Typst](https://typst.app/) project.
 
+---
+
+**Support this project:** If you find this action valuable, please consider leaving a star to help others discover it,\
+or buy me a coffee to support its development!\
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-yellow.svg)](https://www.buymeacoffee.com/tomver)
+
 ## Features
 
 - Scans imported packages in Typst files and reports if newer versions are
