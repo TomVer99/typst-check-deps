@@ -37,7 +37,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.1",
     "cheerio": "^1.1.2",
     "smol-toml": "^1.4.2"
   },
